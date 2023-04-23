@@ -102,11 +102,11 @@ class Agent:
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
 
-    def get_action(self, state):
+    def get_action(self, state, epsilon, epsilon_decay):
         # random moves: tradeoff explotation / exploitation
-        self.epsilon = 80 - self.n_game
         final_move = [0, 0, 0]
-        if (random.randint(0, 200) < self.epsilon):
+        prob = random.random()
+        if prob <= epsilon:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
@@ -114,10 +114,15 @@ class Agent:
             prediction = self.model(state0).cuda()  # prediction by model
             move = torch.argmax(prediction).item()
             final_move[move] = 1
+
+            # decay the epsilon
+            epsilon_decayed = epsilon * epsilon_decay
         return final_move
 
 
 def train():
+    epsilon = 1
+    epsilon_decay = .9999
     plot_scores = []
     plot_mean_scores = []
     total_score = 0
@@ -132,7 +137,7 @@ def train():
         state_old = agent.get_state(game)
 
         # get move
-        final_move = agent.get_action(state_old)
+        final_move = agent.get_action(state_old, epsilon, epsilon_decay)
 
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
@@ -159,7 +164,7 @@ def train():
                 plot(plot_scores, plot_mean_scores)
                 print('Game:', agent.n_game, 'Score:', score, 'Record:', record)
 
-                if agent.n_game % 50 == 0:
+                if agent.n_game % 20 == 0:
                     agent.model.save()
 
 
