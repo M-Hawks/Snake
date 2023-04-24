@@ -21,7 +21,7 @@ class Linear_QNet(nn.Module):
     def forward(self, x):
 
         return self.net(x)
-    def save(self, file_name='model_bad_old.pth'):
+    def save(self, file_name='model.pth'):
         #model_folder_path = 'C:\Users\Michael\Documents\Code\deep-learning\GeeksSnake\SnakeGameAI-main\SnakeGameAI-main'
         #file_name = os.path.join(model_folder_path,file_name)
         torch.save(self.state_dict(),file_name)

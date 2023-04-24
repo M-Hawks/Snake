@@ -18,10 +18,14 @@ LR = 0.001
 class Agent:
     def __init__(self):
         self.n_game = 0
-        self.epsilon = 0  # Randomness
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(GAME_SIZE * GAME_SIZE, 3)
+
+        self.model = Linear_QNet(GAME_SIZE * GAME_SIZE, 3).cuda()
+        self.model.load_state_dict(torch.load('model.pth'))
+        self.targetModel = Linear_QNet(GAME_SIZE * GAME_SIZE, 3).cuda()
+        self.targetModel.load_state_dict(self.model.state_dict())
+
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
         self.highScore = 0
         # for n,p in self.model.named_parameters():
@@ -30,60 +34,8 @@ class Agent:
         # for n,p in self.model.named_parameters():
         #     print(p.device,'',n)
         # TODO: model,trainer
-        #self.model.load_state_dict(torch.load('model_bad_old.pth'))
 
-    # state (11 Values)
-    # [ danger straight, danger right, danger left,
-    #
-    # direction left, direction right,
-    # direction up, direction down
-    #
-    # food left,food right,
-    # food up, food down]
-    # def get_state(self, game):
-    #     head = game.snake[0]
-    #     point_l = Point(head.x - 1, head.y)
-    #     point_r = Point(head.x + 1, head.y)
-    #     point_u = Point(head.x, head.y - 1)
-    #     point_d = Point(head.x, head.y + 1)
-    #
-    #     dir_l = game.direction == Direction.LEFT
-    #     dir_r = game.direction == Direction.RIGHT
-    #     dir_u = game.direction == Direction.UP
-    #     dir_d = game.direction == Direction.DOWN
-    #
-    #     state = [
-    #         # Danger Straight
-    #         (dir_u and game.is_collision(point_u)) or
-    #         (dir_d and game.is_collision(point_d)) or
-    #         (dir_l and game.is_collision(point_l)) or
-    #         (dir_r and game.is_collision(point_r)),
-    #
-    #         # Danger right
-    #         (dir_u and game.is_collision(point_r)) or
-    #         (dir_d and game.is_collision(point_l)) or
-    #         (dir_u and game.is_collision(point_u)) or
-    #         (dir_d and game.is_collision(point_d)),
-    #
-    #         # Danger Left
-    #         (dir_u and game.is_collision(point_r)) or
-    #         (dir_d and game.is_collision(point_l)) or
-    #         (dir_r and game.is_collision(point_u)) or
-    #         (dir_l and game.is_collision(point_d)),
-    #
-    #         # Move Direction
-    #         dir_l,
-    #         dir_r,
-    #         dir_u,
-    #         dir_d,
-    #
-    #         # Food Location
-    #         game.food.x < game.head.x,  # food is in left
-    #         game.food.x > game.head.x,  # food is in right
-    #         game.food.y < game.head.y,  # food is up
-    #         game.food.y > game.head.y  # food is down
-    #     ]
-    #     return np.array(state, dtype=int)
+
 
     def get_state(self, game):
         return game.grid.copy().flatten()
@@ -120,9 +72,9 @@ class Agent:
         return final_move
 
 
-def train():
+def main():
     epsilon = 1
-    epsilon_decay = .9999
+    epsilon_decay = .8
     plot_scores = []
     plot_mean_scores = []
     total_score = 0
@@ -177,4 +129,4 @@ def train():
 
 
 if (__name__ == "__main__"):
-    train()
+    main()
