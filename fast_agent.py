@@ -12,7 +12,7 @@ from snake_logic import GAME_SIZE
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
-LR = 0.001
+LR = 0.01
 
 
 class Agent:
@@ -21,9 +21,9 @@ class Agent:
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
 
-        self.model = Linear_QNet(GAME_SIZE * GAME_SIZE, 3).cuda()
+        self.model = Linear_QNet((2 * GAME_SIZE - 1) * (2 * GAME_SIZE - 1), 3).cuda()
         self.model.load_state_dict(torch.load('model.pth'))
-        self.targetModel = Linear_QNet(GAME_SIZE * GAME_SIZE, 3).cuda()
+        self.targetModel = Linear_QNet((2 * GAME_SIZE - 1) * (2 * GAME_SIZE - 1), 3).cuda()
         self.targetModel.load_state_dict(self.model.state_dict())
 
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
@@ -38,7 +38,35 @@ class Agent:
 
 
     def get_state(self, game):
-        return game.grid.copy().flatten()
+        # Rotate based on snake direction
+        copyGrid = game.grid.copy()
+        snakePos = Point(game.head.x, game.head.y)
+
+        if game.direction == Direction.RIGHT:
+            copyGrid = np.rot90(copyGrid, 1)
+            snakePos = Point(GAME_SIZE - 1 - game.head.y, game.head.x)
+        elif game.direction == Direction.LEFT:
+            copyGrid = np.rot90(copyGrid, 3)
+            snakePos = Point(game.head.y, GAME_SIZE - 1 - game.head.x)
+        elif game.direction == Direction.DOWN:
+            copyGrid = np.rot90(copyGrid, 2)
+            snakePos = Point(game.head.y, game.head.x)
+
+        # figure out offset to start writing into new grid.
+        xOffset = GAME_SIZE - 1 - snakePos.x
+        yOffset = GAME_SIZE - 1 - snakePos.y
+
+
+        # write into new grid
+        outGrid = np.full((2 * GAME_SIZE - 1, 2 * GAME_SIZE - 1), 1)
+        for i in range(yOffset, yOffset + GAME_SIZE):
+            for j in range(xOffset, xOffset + GAME_SIZE):
+                outGrid[i][j] = copyGrid[i - yOffset][j - xOffset]
+
+        # flatten new grid as input features.
+        # print(outGrid)
+        return outGrid.flatten()
+        # return game.grid.copy().flatten()
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))  # popleft if memory exceed
@@ -81,7 +109,7 @@ def main():
     record = 0
     game = SnakeGameLogic()
     agent = Agent()
-    ui = SnakeGameUI(game)
+    # ui = SnakeGameUI(game)
     i = 0
     while True:
         i += 1
@@ -100,25 +128,22 @@ def main():
 
         # remember
         agent.remember(state_old, final_move, reward, state_new, done)
-        ui.update_ui()
-
+        # ui.update_ui()
 
         if done:
-
             # Train long memory,plot result
             game.reset()
             agent.n_game += 1
             agent.train_long_memory()
             if score > record:  # new High score
                 record = score
-            if agent.n_game % 10 == 0:
+            if agent.n_game % 100 == 0:
 
                 plot(plot_scores, plot_mean_scores)
                 print('Game:', agent.n_game, 'Score:', score, 'Record:', record)
 
-                if agent.n_game % 20 == 0:
+                if agent.n_game % 500 == 0:
                     agent.model.save()
-
 
             plot_scores.append(score)
             total_score += score

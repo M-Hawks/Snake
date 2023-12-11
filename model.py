@@ -7,15 +7,16 @@ import os
 class Linear_QNet(nn.Module):
     def __init__(self,input_size,output_size):
         super().__init__()
-        hidden_size = 50
+        hidden_size = 2 * input_size
 
-        self.net = nn.Sequential(nn.Linear(input_size, hidden_size),
-                                     nn.ReLU(),
-                                     nn.Linear(hidden_size, hidden_size),
-                                     nn.ReLU(),
-                                     nn.Linear(hidden_size, hidden_size),
-                                     nn.ReLU(),
-                                     nn.Linear(hidden_size, output_size)).cuda()
+        self.net = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.ReLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.ReLU(),
+            nn.Linear(hidden_size, output_size)).cuda()
 
 
     def forward(self, x):
@@ -35,14 +36,12 @@ class QTrainer:
         self.criterion = nn.MSELoss()
         for i in self.model.parameters():
             print(i.is_cuda)
-
     
     def train_step(self,state,action,reward,next_state,done):
         state = torch.tensor(state,dtype=torch.float).cuda()
         next_state = torch.tensor(next_state,dtype=torch.float).cuda()
         action = torch.tensor(action,dtype=torch.long).cuda()
         reward = torch.tensor(reward,dtype=torch.float).cuda()
-
 
         if(len(state.shape) == 1): # only one parameter to train , Hence convert to tuple of shape (1, x)
             #(1 , x)

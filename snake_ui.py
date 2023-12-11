@@ -9,6 +9,7 @@ font = pygame.font.Font('arial.ttf',17)
 
 
 BLOCK_SIZE = 20
+#40
 SPEED = 40
 WHITE = (255, 255, 255)
 RED = (200, 0, 0)

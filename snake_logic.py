@@ -80,7 +80,7 @@ class SnakeGameLogic:
         # Check for game win
         if len(self.snake) >= self.h * self.w:
             game_over = True
-            reward = 50
+            reward = 100
             return reward, game_over, self.score
 
         # 4. Place new Food or just move
