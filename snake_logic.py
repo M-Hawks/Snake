@@ -19,31 +19,33 @@ FOOD = 3
 
 
 class SnakeGameLogic:
-    def __init__(self):
-        self.w = GAME_SIZE
-        self.h = GAME_SIZE
-        self.reset()
+    def __init__(self, game_size=GAME_SIZE, direction=Direction.RIGHT, snake=None, food=None, score=0, moves_made=0):
+        self.w = game_size
+        self.h = game_size
+        
+        self.direction = direction
+        if snake == None:
+            self.head = Point(self.w // 2, self.h // 2)
+            self.snake = [self.head,
+                        Point(self.head.x - 1, self.head.y),
+                        Point(self.head.x - 2, self.head.y)]
+        else:
+            self.head = snake[0]
+            self.snake = snake
 
-        # init display
-
-    def reset(self):
-        self.direction = Direction.RIGHT
-        self.head = Point(self.w // 2, self.h // 2)
-        self.snake = [self.head,
-                      Point(self.head.x - 1, self.head.y),
-                      Point(self.head.x - 2, self.head.y)]
-        self.score = 0
-
-        self.iteration = 0
-        self.steps_left = 50
+        self.score = score
+        self.moves_made = moves_made
+        self.steps_left = ((score + 1) * 50) - moves_made
 
         self.grid = np.zeros((self.w, self.h))
         for point in self.snake[1:]:
             self.grid[point.y][point.x] = 1
         self.grid[self.head.y, self.head.x] = 2
 
-        self.food = None
-        self._place__food()
+        if food:
+            self.food = food
+        else:
+            self._place__food()
 
 
     def _place__food(self):
@@ -58,7 +60,7 @@ class SnakeGameLogic:
             self._place__food()
 
     def play_step(self, action):
-        self.iteration += 1
+        self.moves_made += 1
         self.steps_left -= 1
         # 2. Move
         movePoint = self._move(action)

@@ -109,7 +109,7 @@ def main():
     record = 0
     game = SnakeGameLogic()
     agent = Agent()
-    # ui = SnakeGameUI(game)
+    ui = SnakeGameUI(game)
     i = 0
     while True:
         i += 1
@@ -128,11 +128,11 @@ def main():
 
         # remember
         agent.remember(state_old, final_move, reward, state_new, done)
-        # ui.update_ui()
+        ui.update_ui(game)
 
         if done:
             # Train long memory,plot result
-            game.reset()
+            game = SnakeGameLogic()
             agent.n_game += 1
             agent.train_long_memory()
             if score > record:  # new High score
