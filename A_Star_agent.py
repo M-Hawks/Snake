@@ -25,7 +25,7 @@ class A_Star:
                     continue
                 if found_food:
                     return child, win
-                open_set.put((game.hueristic(), child))
+                open_set.put((child.hueristic(), child))
         return None, False
 
     
