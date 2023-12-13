@@ -35,7 +35,7 @@ class SnakeGameLogic:
 
         self.score = score
         self.moves_made = moves_made
-        self.steps_left = ((score + 1) * 50) - moves_made
+        self.steps_left = ((score + 1) * 100) - moves_made
 
         self.grid = np.zeros((self.w, self.h))
         for point in self.snake[1:]:
@@ -112,7 +112,7 @@ class SnakeGameLogic:
         if self.head == self.food:
             self.score += 1
             reward = 10
-            self.steps_left += 50
+            self.steps_left += 100
             self._place__food()
             found_food = True
         else:
@@ -177,17 +177,18 @@ class SnakeGameLogic:
 
     def is_oob(self, point):
         if point.y < 0 or point.y >= self.h:
-            return False
+            return True
         
         if point.x < 0 or point.x >= self.w:
-            return False
+            return True
         
-        return True
+        return False
     
     def copy(self):
         snakeCopy = self.snake.copy()
         food = Point(self.food.x, self.food.y)
+        path = self.path.copy()
 
-        return SnakeGameLogic(direction=self.direction, snake=snakeCopy, food=food, score=self.score, moves_made=self.moves_made, path=self.path)
+        return SnakeGameLogic(direction=self.direction, snake=snakeCopy, food=food, score=self.score, moves_made=self.moves_made, path=path)
 
 
