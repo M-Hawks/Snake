@@ -1,43 +1,45 @@
 from queue import PriorityQueue
+from snake_logic import SnakeGameLogic
 
 # game: grid, came_from, hueristic
 
 class A_Star:
-    def __init__(self, game) -> None:
-        self.game = game
+    def __init__(self) -> None:
         pass
     
-    def get_path(self):
+    def get_path(self, game):
         open_set = PriorityQueue()
-        start = self.game
-        open_set.put((start.heuristic, start))
+
+        open_set.put((game.heuristic(), game))
+        directions = [(1,0,0), (0,1,0), (0,0,1)]
         # construct path for every move
         while not open_set.empty():
-            current = open_set.get()[1]
-            #TODO: check if current is end
-            if current.end:
-                return current
-            #check neighbors add to queue
-            for neighbor in self.get_neighbors(current):
-                    open_set.put((neighbor.heuristic, neighbor))
-        return None
+            game = open_set.get()[1]
+            for dir in directions:
+                child = game.copy()
+                _, _, dead, found_food, win = child.play_step(dir)
+                child.add_to_path(game)
+                if dead:
+                    continue
+                if found_food:
+                    return child, win
+                open_set.put((game.heuristic(), child))
+        return None, False
     
-    #get different game states to pass back to the agent
-    def get_neighbors(self, current):
-        s_game = self.current.copy()
-        r_game = self.current.copy()
-        l_game = self.current.copy()
-        straight = self.s_game.play_step((1,0,0))
-        right = self.r_game.play_step((0,1,0))
-        left = self.l_game.play_step((0,0,1))
-        return [straight, right, left]
+    #if crashed: stop #if ate: reset #if moved: continue #if win: stop
+
 def main():
     game = SnakeGameLogic()
-    a_star = A_Star(game)
-    #TODO: fenagle with the while loop... while loop is while end state can be reached.
-    while fruit_loop:
-        path = a_star.get_path()
-        
+    a_star = A_Star()
+    while True:
+        game, win = a_star.get_path(game)
+        if win:
+            break
+        if game == None:
+            break
+        #pass to the ui the game path
+        #game resets for next fruit loop
+        game.path = []
 
     pass
    
