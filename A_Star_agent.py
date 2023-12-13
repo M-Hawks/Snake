@@ -12,7 +12,6 @@ class A_Star:
 
     def get_path(self, game):
         open_set = PriorityQueue()
-
         open_set.put((game.hueristic(), game))
         directions = [(1,0,0), (0,1,0), (0,0,1)]
         # construct path for every move

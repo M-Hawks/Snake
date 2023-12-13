@@ -48,6 +48,8 @@ class SnakeGameLogic:
             self._place__food()
         
         self.path = path
+    def __lt__(self, other):
+        return self.hueristic() < other.hueristic()
 
     def hueristic(self):
         manhattan = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
