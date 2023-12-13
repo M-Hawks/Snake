@@ -52,7 +52,20 @@ class SnakeGameLogic:
         return self.hueristic() < other.hueristic()
 
     def hueristic(self):
-        return self.d_search(self.head, set()) + self.manhattan(self.head)
+        visited = set()
+        # point = self.head
+        # s = 0
+        # s += self.d_search(Point(point.x +1, point.y), visited)
+        # s += self.d_search(Point(point.x -1, point.y), visited)
+        # s += self.d_search(Point(point.x, point.y+1), visited)
+        # s += self.d_search(Point(point.x, point.y-1), visited)
+        # s = self.w * self.h - (s + len(self.snake))
+
+        point = self.food
+        s = self.d_search(Point(point.x, point.y-1), visited)
+        s = self.w * self.h - (s + len(self.snake))
+    
+        return s, self.manhattan(self.head)
     
     def d_search(self, point, visited):
         s = 1
@@ -61,7 +74,7 @@ class SnakeGameLogic:
         if point in visited:
             return 0
         else:
-            visited.put(point)
+            visited.add(point)
             s += self.d_search(Point(point.x +1, point.y), visited)
             s += self.d_search(Point(point.x -1, point.y), visited)
             s += self.d_search(Point(point.x, point.y+1), visited)
@@ -70,7 +83,7 @@ class SnakeGameLogic:
     
     def manhattan(self, point):
         manhattan = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
-        manhattan + self.moves_made
+        tot = manhattan + self.moves_made
         return manhattan
     
     def is_body_or_head(self, point):
