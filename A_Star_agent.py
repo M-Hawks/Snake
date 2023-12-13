@@ -1,5 +1,6 @@
 from queue import PriorityQueue
 from snake_logic import SnakeGameLogic
+from snake_ui import SnakeGameUI
 
 # game: grid, came_from, hueristic
 
@@ -28,9 +29,10 @@ class A_Star:
     
     #if crashed: stop #if ate: reset #if moved: continue #if win: stop
 
-def main():
+if __name__ == "__main__":
     game = SnakeGameLogic()
     a_star = A_Star()
+    ui = SnakeGameUI(game)
     while True:
         game, win = a_star.get_path(game)
         if win:
@@ -38,6 +40,9 @@ def main():
         if game == None:
             break
         #pass to the ui the game path
+        for step in game.path:
+            ui.update_ui(step)
+        ui.update_ui(game)
         #game resets for next fruit loop
         game.path = []
 
