@@ -52,8 +52,32 @@ class SnakeGameLogic:
         return self.hueristic() < other.hueristic()
 
     def hueristic(self):
+        return self.d_search(self.head, set()) + self.manhattan(self.head)
+    
+    def d_search(self, point, visited):
+        s = 1
+        if self.is_oob(point) or self.is_body_or_head(point):
+            return 0
+        if point in visited:
+            return 0
+        else:
+            visited.put(point)
+            s += self.d_search(Point(point.x +1, point.y), visited)
+            s += self.d_search(Point(point.x -1, point.y), visited)
+            s += self.d_search(Point(point.x, point.y+1), visited)
+            s += self.d_search(Point(point.x, point.y-1), visited)
+            return s
+    
+    def manhattan(self, point):
         manhattan = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
-        return manhattan + self.moves_made
+        manhattan + self.moves_made
+        return manhattan
+    
+    def is_body_or_head(self, point):
+        if self.grid[point.y][point.x] == BODY or self.grid[point.y][point.x] == HEAD:
+            return True
+        return False
+    
     
     def _place__food(self):
         #todo: make this more effecient
