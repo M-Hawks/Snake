@@ -2,16 +2,18 @@ from queue import PriorityQueue
 from snake_logic import SnakeGameLogic
 from snake_ui import SnakeGameUI
 
-# game: grid, came_from, hueristic
 
+
+# game: grid, came_from, hueristic
 class A_Star:
     def __init__(self) -> None:
         pass
-    
+
+
     def get_path(self, game):
         open_set = PriorityQueue()
 
-        open_set.put((game.heuristic(), game))
+        open_set.put((game.hueristic(), game))
         directions = [(1,0,0), (0,1,0), (0,0,1)]
         # construct path for every move
         while not open_set.empty():
@@ -24,8 +26,9 @@ class A_Star:
                     continue
                 if found_food:
                     return child, win
-                open_set.put((game.heuristic(), child))
+                open_set.put((game.hueristic(), child))
         return None, False
+
     
     #if crashed: stop #if ate: reset #if moved: continue #if win: stop
 
@@ -45,7 +48,6 @@ if __name__ == "__main__":
         ui.update_ui(game)
         #game resets for next fruit loop
         game.path = []
-
     pass
    
     
