@@ -4,6 +4,7 @@ import numpy as np
 import random
 
 
+
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
@@ -16,7 +17,6 @@ GAME_SIZE = 10
 BODY = 1
 HEAD = 2
 FOOD = 3
-
 
 class SnakeGameLogic:
     def __init__(self, game_size=GAME_SIZE, direction=Direction.RIGHT, snake=None, food=None, score=0, moves_made=0, path=[]):
@@ -48,8 +48,13 @@ class SnakeGameLogic:
             self._place__food()
         
         self.path = path
+    def __lt__(self, other):
+        return self.hueristic() < other.hueristic()
 
-
+    def hueristic(self):
+        manhattan = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
+        return manhattan + self.moves_made
+    
     def _place__food(self):
         #todo: make this more effecient
 
@@ -179,7 +184,7 @@ class SnakeGameLogic:
         
         return True
     
-    def make_copy(self):
+    def copy(self):
         snakeCopy = self.snake.copy()
         food = Point(self.food.x, self.food.y)
 
