@@ -64,7 +64,8 @@ class SnakeGameLogic:
         point = self.food
         s = self.d_search(Point(point.x, point.y-1), visited)
         s = self.w * self.h - (s + len(self.snake))
-    
+
+        s += self.bad_squares()
         return s, self.manhattan(self.head)
     
     def d_search(self, point, visited):
@@ -81,6 +82,38 @@ class SnakeGameLogic:
             s += self.d_search(Point(point.x, point.y-1), visited)
             return s
     
+    def bad_squares(self):
+        total = 0
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
+                # Check if i'm an empty space
+                point = Point(x, y)
+                if self.is_oob(point) or self.is_body_or_head(point):
+                    continue
+                
+                right = Point(x +1, y)
+                left = Point(x -1, y)
+                up = Point(x, y - 1)
+                down = Point(x, y + 1)
+                dirs = [right, left, up, down]
+
+                bad_dirs = 0
+                for dir in dirs:
+                    # if self.is_oob(point) or self.is_body_or_head(point):
+                    #     bad_dirs += 1
+
+                    if not self.is_oob(point) and self.is_body_or_head(point):
+                        bad_dirs += 1
+
+                if bad_dirs >= 3:
+                    total += 1
+
+        return total
+
+        
+
+
+
     def manhattan(self, point):
         manhattan = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
         tot = manhattan + self.moves_made

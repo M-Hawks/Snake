@@ -13,7 +13,7 @@ class A_Star:
     def get_path(self, game):
         open_set = PriorityQueue()
         s, manhat = game.hueristic()
-        open_set.put((s + manhat, game))
+        open_set.put((s * 1000 + manhat, game))
         directions = [(1,0,0), (0,1,0), (0,0,1)]
         # construct path for every move
         while not open_set.empty():
@@ -25,12 +25,12 @@ class A_Star:
                 s, manhat = child.hueristic()
                 if dead:
                     continue
-                if found_food and s < 5:
+                if found_food and s == 0:
                     return child, win
                 if found_food:
                     continue
                 
-                open_set.put((s + manhat, child))
+                open_set.put((s * 1000 + manhat, child))
         return None, False
 
     
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     while True:
         game, win = a_star.get_path(game)
         if win:
+            print("you Won!")
             break
         if game == None:
             break

@@ -84,6 +84,7 @@ class Agent:
 
     def get_action(self, state, epsilon, epsilon_decay):
         # random moves: tradeoff explotation / exploitation
+        
         final_move = [0, 0, 0]
         prob = random.random()
         if prob <= epsilon:
@@ -95,21 +96,20 @@ class Agent:
             move = torch.argmax(prediction).item()
             final_move[move] = 1
 
-            # decay the epsilon
-            epsilon_decayed = epsilon * epsilon_decay
+            
         return final_move
 
 
 def main():
     epsilon = 1
-    epsilon_decay = .8
+    epsilon_decay = .80
     plot_scores = []
     plot_mean_scores = []
     total_score = 0
     record = 0
     game = SnakeGameLogic()
     agent = Agent()
-    ui = SnakeGameUI(game)
+    # ui = SnakeGameUI(game)
     i = 0
     while True:
         i += 1
@@ -128,24 +128,28 @@ def main():
 
         # remember
         agent.remember(state_old, final_move, reward, state_new, done)
-        ui.update_ui(game)
+        # ui.update_ui(game)
+        
 
         if done:
+            if agent.n_game % 10 == 0:
+                # decay the epsilon
+                epsilon = epsilon * epsilon_decay
             # Train long memory,plot result
             game = SnakeGameLogic()
             agent.n_game += 1
             agent.train_long_memory()
             if score > record:  # new High score
                 record = score
-            if agent.n_game % 100 == 0:
+            if agent.n_game % 50 == 0:
 
-                plot(plot_scores, plot_mean_scores)
-                print('Game:', agent.n_game, 'Score:', score, 'Record:', record)
+                # plot(plot_scores, plot_mean_scores)
+                print('Game:', agent.n_game, 'Score:', score, 'Record:', record, "epsilon:", epsilon)
 
                 if agent.n_game % 500 == 0:
                     agent.model.save()
 
-            plot_scores.append(score)
+            # plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_game
             plot_mean_scores.append(mean_score)
