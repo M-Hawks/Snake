@@ -19,7 +19,7 @@ FOOD = 3
 
 
 class SnakeGameLogic:
-    def __init__(self, game_size=GAME_SIZE, direction=Direction.RIGHT, snake=None, food=None, score=0, moves_made=0):
+    def __init__(self, game_size=GAME_SIZE, direction=Direction.RIGHT, snake=None, food=None, score=0, moves_made=0, path=[]):
         self.w = game_size
         self.h = game_size
         
@@ -46,18 +46,32 @@ class SnakeGameLogic:
             self.food = food
         else:
             self._place__food()
+        
+        self.path = path
 
 
     def _place__food(self):
         #todo: make this more effecient
-        x = random.randint(0, self.w - 1)
-        y = random.randint(0, self.h - 1 )
-        self.food = Point(x, y)
 
-        if self.food not in self.snake:
-            self.grid[self.food.y, self.food.x] = 3
-        else:
-            self._place__food()
+        potential_places = []
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid)):
+                if self.grid[y][x] == 0:
+                    potential_places.append((x, y))
+
+        x, y = random.choice(potential_places)
+        self.food = Point(x, y)
+        self.grid[self.food.y, self.food.x] = 3
+
+        # random placement code
+        # x = random.choice(0, self.w - 1)
+        # y = random.randint(0, self.h - 1 )
+        # self.food = Point(x, y)
+
+        # if self.food not in self.snake:
+        #     self.grid[self.food.y, self.food.x] = 3
+        # else:
+        #     self._place__food()
 
     def play_step(self, action):
         self.moves_made += 1
@@ -65,13 +79,16 @@ class SnakeGameLogic:
         # 2. Move
         movePoint = self._move(action)
 
+        found_food = False
+        won_game = False
+
         # 3. Check if game Loss
         reward = 0  # eat food: +10 , game over: -10 , win: 50, else: 0
         game_over = False
         if self.is_collision(movePoint) or self.steps_left <= 0:
             game_over = True
             reward = -10
-            return reward, game_over, self.score
+            return reward, self.score, game_over, found_food, won_game
 
         # make old head body and make new head head
         self.grid[self.head.y, self.head.x] = 1
@@ -82,8 +99,9 @@ class SnakeGameLogic:
         # Check for game win
         if len(self.snake) >= self.h * self.w:
             game_over = True
+            won_game = True
             reward = 100
-            return reward, game_over, self.score
+            return reward, self.score, game_over, found_food, won_game
 
         # 4. Place new Food or just move
         if self.head == self.food:
@@ -91,6 +109,7 @@ class SnakeGameLogic:
             reward = 10
             self.steps_left += 50
             self._place__food()
+            found_food = True
         else:
             # if self.direction == Direction.UP and self.head.y > self.food.y:
             #     reward = .1
@@ -106,7 +125,7 @@ class SnakeGameLogic:
             tail = self.snake.pop()
             self.grid[tail.y][tail.x] = 0
 
-        return reward, game_over, self.score
+        return reward, self.score, game_over, found_food, won_game
 
     def _move(self, action):
         # Action
@@ -147,5 +166,14 @@ class SnakeGameLogic:
         if self.grid[pt.y][pt.x] == BODY:
             return True
         return False
+    
+    def add_to_path(self, move):
+        self.path.append(move)
+    
+    def make_copy(self):
+        snakeCopy = self.snake.copy()
+        food = Point(self.food.x, self.food.y)
+
+        return SnakeGameLogic(direction=self.direction, snake=snakeCopy, food=food, score=self.score, moves_made=self.moves_made, path=self.path)
 
 

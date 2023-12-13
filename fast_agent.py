@@ -120,7 +120,7 @@ def main():
         final_move = agent.get_action(state_old, epsilon, epsilon_decay)
 
         # perform move and get new state
-        reward, done, score = game.play_step(final_move)
+        reward, score, done, found_food, won_game  = game.play_step(final_move)
         state_new = agent.get_state(game)
 
         # train short memory
