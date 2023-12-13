@@ -172,8 +172,17 @@ class SnakeGameLogic:
             return True
         return False
     
-    def add_to_path(self, move):
-        self.path.append(move)
+    def add_to_path(self, parent):
+        self.path.append(parent)
+
+    def is_oob(self, point):
+        if point.y < 0 or point.y >= self.h:
+            return False
+        
+        if point.x < 0 or point.x >= self.w:
+            return False
+        
+        return True
     
     def copy(self):
         snakeCopy = self.snake.copy()
